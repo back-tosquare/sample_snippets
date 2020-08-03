@@ -1,4 +1,8 @@
+import 'package:provider/provider.dart';
+
 import 'package:flutter/material.dart';
+
+import '../../models/providers/FormValue.dart';
 
 import './MyTextInput.dart';
 
@@ -12,34 +16,24 @@ class _BasicFormState extends State<BasicForm> {
   final FocusNode _ageFocusNode = FocusNode();
   final FocusNode _descriptionFocusNode = FocusNode();
 
-  final GlobalKey<FormState> _myFormKey = GlobalKey<FormState>();
-
-  Map<String, String> myFormValue = {
-    "name": "",
-    "description": "",
-    "age": "",
-  };
-
   void dispose() {
     _nameFocusNode.dispose();
     _ageFocusNode.dispose();
+    _descriptionFocusNode.dispose();
 
     super.dispose();
   }
 
-  void formSaveHandler() {
-    _myFormKey.currentState.save();
-    debugPrint("$myFormValue");
-  }
-
-  void focusChangeTo(BuildContext context, FocusNode toFocus) {
-    FocusScope.of(context).requestFocus(toFocus);
+  String genericValidator(String value) {
+    return (value.isEmpty) ? "Enter a Value" : null;
   }
 
   @override
   Widget build(BuildContext context) {
+    FormValue formProvider = Provider.of<FormValue>(context, listen: false);
+
     return Form(
-      key: _myFormKey,
+      key: formProvider.formKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,32 +42,27 @@ class _BasicFormState extends State<BasicForm> {
               label: "Enter Name",
               focusNode: _nameFocusNode,
               submitHandler: (_) {
-                focusChangeTo(context, _descriptionFocusNode);
+                formProvider.focusChangeTo(context, _descriptionFocusNode);
               },
-              onSavedHandler: (value) {
-                myFormValue["name"] = value;
-              },
+              onSavedHandler: (value) => formProvider.setValue("name", value),
+              validator: (value) => genericValidator(value),
             ),
             MyTextInput(
               label: "Enter Description",
               focusNode: _descriptionFocusNode,
-              submitHandler: (_) {
-                focusChangeTo(context, _ageFocusNode);
-              },
-              onSavedHandler: (value) {
-                myFormValue["description"] = value;
-              },
+              submitHandler: (_) =>
+                  formProvider.focusChangeTo(context, _ageFocusNode),
+              onSavedHandler: (value) =>
+                  formProvider.setValue("description", value),
+              validator: (value) => genericValidator(value),
             ),
             MyTextInput(
               label: "Enter Age",
               focusNode: _ageFocusNode,
               keyboardType: TextInputType.number,
-              submitHandler: (_) {
-                formSaveHandler();
-              },
-              onSavedHandler: (value) {
-                myFormValue["age"] = value;
-              },
+              submitHandler: (_) => formProvider.formSubmitHandler(),
+              onSavedHandler: (value) => formProvider.setValue("age", value),
+              validator: (value) => genericValidator(value),
             ),
           ],
         ),

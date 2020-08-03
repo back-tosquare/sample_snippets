@@ -6,13 +6,15 @@ class MyTextInput extends StatelessWidget {
   final Function submitHandler;
   final TextInputType keyboardType;
   final Function onSavedHandler;
+  final Function validator;
 
   const MyTextInput({
     @required this.focusNode,
     @required this.label,
     this.submitHandler,
-    this.keyboardType = TextInputType.text,
-    this.onSavedHandler, // Default Value
+    this.keyboardType = TextInputType.text, // Default Value
+    this.onSavedHandler,
+    this.validator,
   });
 
   @override
@@ -25,6 +27,7 @@ class MyTextInput extends StatelessWidget {
         onFieldSubmitted: submitHandler,
         keyboardType: keyboardType,
         onSaved: onSavedHandler,
+        validator: validator,
       ),
     );
   }
